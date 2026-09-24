@@ -466,15 +466,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   /* ============================================================
      C. STATE + DOM
      ============================================================ */
-  function resolveSrc(val, fallback) {
-    if (!val) return fallback;
-    if (val.startsWith("data:") || val.startsWith("http://") || val.startsWith("https://")) return val;
-    if (val.endsWith(".jpg") || val.endsWith(".jpeg") || val.endsWith(".png") || val.endsWith(".webp")) return val;
-    return "data:image/jpeg;base64," + val;
-  }
   var portraits = JSON.parse(document.getElementById("portraits").textContent);
-  var GROOM_SRC = resolveSrc(portraits.groom, "groom.jpg");
-  var BRIDE_SRC = resolveSrc(portraits.bride, "bride.jpg");
+  var GROOM_SRC = portraits.groom.startsWith("data:") || portraits.groom.includes("/") || portraits.groom.includes(".") ? portraits.groom : "data:image/jpeg;base64," + portraits.groom;
+  var BRIDE_SRC = portraits.bride.startsWith("data:") || portraits.bride.includes("/") || portraits.bride.includes(".") ? portraits.bride : "data:image/jpeg;base64," + portraits.bride;
 
   var i = 0;                       /* current question index */
   var answers = new Array(QUESTIONS.length).fill(null);
@@ -540,11 +534,10 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
   function card(who, name, role, tilt) {
     var src = who === "groom" ? GROOM_SRC : BRIDE_SRC;
-    var fallback = who === "groom" ? "groom.jpg" : "bride.jpg";
     return (
       '<button class="choice" type="button" data-who="' + who + '" style="--tilt:' + tilt + 'deg">' +
         '<div class="choice__photo">' +
-          '<img src="' + src + '" onerror="if(!this.dataset.failed){this.dataset.failed=1;this.src=\'' + fallback + '\';}" alt="' + name + ', ' + role + '">' +
+          '<img src="' + src + '" alt="' + name + ', ' + role + '">' +
           '<div class="choice__glow"></div>' +
         '</div>' +
         '<div class="choice__cap">' +
